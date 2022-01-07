@@ -1,0 +1,137 @@
+Pre-requisite
+
+Machine (Centos 7.9) should be connected to internet
+NAT mode
+IP from local DHCP server --> dhclient -v
+
+To test connectivity
+
+[root@localhost ~]# nslookup google.com
+Server:		192.168.91.2
+Address:	192.168.91.2#53
+
+Non-authoritative answer:
+Name:	google.com
+Address: 142.250.183.174
+Name:	google.com
+Address: 2404:6800:4009:825::200e
+--------------------------------
+
+Git - Version control system
+
+To install git
+[root@localhost ~]# yum -y install git
+
+To check the existence and version of git ##Verify git installation
+[root@localhost ~]# git --version
+git version 1.8.3.1
+
+Initialised the current working directory 'pwd' as a Git Repository
+[root@localhost ~]# mkdir gitlab
+[root@localhost ~]# cd gitlab/
+[root@localhost gitlab]# git init
+Initialized empty Git repository in /root/gitlab/.git/
+[root@localhost gitlab]# git status
+# On branch master
+#
+# Initial commit
+#
+nothing to commit (create/copy files and use "git add" to track)
+
+To check status of your git repository
+[root@localhost gitlab]# git status
+# On branch master
+#
+# Initial commit
+#
+# Untracked files:
+#   (use "git add <file>..." to include in what will be committed)
+#
+#	listallfilesinroot.sh
+
+To add the script to git repository
+[root@localhost gitlab]# git add listallfilesinroot.sh
+
+To add all files in the current directory
+git add .
+
+To add all files in a current directory as well as files in sub directories
+git add -A
+
+Commitiing on git wit a message
+[root@localhost gitlab]# git commit -m "Committing script named listallfilesinroot.sh"
+
+To modify the commit message
+git commit --amend -m "New message"
+
+Branches
+--------
+A branch is a lightweight movable pointer in Git. 
+
+The default branch name in Git is master
+[root@localhost gitlab]# git branch
+* master
+
+To create a new branch - command is - git branch 'branch_name'
+[root@localhost gitlab]# git branch testbranch1
+[root@localhost gitlab]# git branch testbranch2
+[root@localhost gitlab]# git branch testbranch3
+
+To list the various branches inside your git repo
+[root@localhost gitlab]# git branch 
+* master
+  testbranch1
+  testbranch2
+  testbranch3
+  
+You will remain in current branch untill n unless switched
+  
+Switching to a new branch
+[root@localhost gitlab]# git checkout testbranch2
+Switched to branch 'testbranch2'
+[root@localhost gitlab]# git branch
+  master
+  testbranch1
+* testbranch2    --->> * will always point towards current branch
+  testbranch3
+  
+To create a branch and switch to it in a single command 
+[root@localhost gitlab]# git checkout -b testbranch4
+Switched to a new branch 'testbranch4'
+[root@localhost gitlab]# git branch
+  master
+  testbranch1
+  testbranch2
+  testbranch3
+* testbranch4
+
+To rename a branch --> git branch -m <current branch name> <new branch name>
+[root@localhost gitlab]# git branch -m testbranch1 test1
+[root@localhost gitlab]# git branch
+  master
+  test1
+  testbranch2
+  testbranch3
+* testbranch4
+
+To delete a specific branch
+[root@localhost gitlab]# git branch -D testbranch2
+Deleted branch testbranch2 (was e497d3c).
+[root@localhost gitlab]# git branch
+  master
+  test1
+  testbranch3
+* testbranch4
+
+
+
+
+
+
+
+
+
+
+
+
+
