@@ -1,0 +1,202 @@
+Pre-requisite
+
+Machine (Centos 7.9) should be connected to internet
+NAT mode
+IP from local DHCP server --> dhclient -v
+
+To test connectivity
+
+[root@localhost ~]# nslookup google.com
+Server:		192.168.91.2
+Address:	192.168.91.2#53
+
+Non-authoritative answer:
+Name:	google.com
+Address: 142.250.183.174
+Name:	google.com
+Address: 2404:6800:4009:825::200e
+--------------------------------
+
+Git - Version control system
+
+To install git
+[root@localhost ~]# yum -y install git
+
+To check the existence and version of git ##Verify git installation
+[root@localhost ~]# git --version
+git version 1.8.3.1
+
+Initialised the current working directory 'pwd' as a Git Repository
+[root@localhost ~]# mkdir gitlab
+[root@localhost ~]# cd gitlab/
+[root@localhost gitlab]# git init
+Initialized empty Git repository in /root/gitlab/.git/
+[root@localhost gitlab]# git status
+# On branch master
+#
+# Initial commit
+#
+nothing to commit (create/copy files and use "git add" to track)
+
+To check status of your git repository
+[root@localhost gitlab]# git status
+# On branch master
+#
+# Initial commit
+#
+# Untracked files:
+#   (use "git add <file>..." to include in what will be committed)
+#
+#	listallfilesinroot.sh
+
+To add the script to git repository
+[root@localhost gitlab]# git add listallfilesinroot.sh
+
+To add all files in the current directory
+git add .
+
+To add all files in a current directory as well as files in sub directories
+git add -A
+
+Commitiing on git wit a message
+[root@localhost gitlab]# git commit -m "Committing script named listallfilesinroot.sh"
+
+To modify the commit message
+git commit --amend -m "New message"
+
+Branches
+--------
+A branch is a lightweight movable pointer in Git. 
+
+The default branch name in Git is master
+[root@localhost gitlab]# git branch
+* master
+
+To create a new branch - command is - git branch 'branch_name'
+[root@localhost gitlab]# git branch testbranch1
+[root@localhost gitlab]# git branch testbranch2
+[root@localhost gitlab]# git branch testbranch3
+
+To list the various branches inside your git repo
+[root@localhost gitlab]# git branch 
+* master
+  testbranch1
+  testbranch2
+  testbranch3
+  
+You will remain in current branch untill n unless switched
+  
+Switching to a new branch
+[root@localhost gitlab]# git checkout testbranch2
+Switched to branch 'testbranch2'
+[root@localhost gitlab]# git branch
+  master
+  testbranch1
+* testbranch2    --->> * will always point towards current branch
+  testbranch3
+  
+To create a branch and switch to it in a single command 
+[root@localhost gitlab]# git checkout -b testbranch4
+Switched to a new branch 'testbranch4'
+[root@localhost gitlab]# git branch
+  master
+  testbranch1
+  testbranch2
+  testbranch3
+* testbranch4
+
+To rename a branch --> git branch -m <current branch name> <new branch name>
+[root@localhost gitlab]# git branch -m testbranch1 test1
+[root@localhost gitlab]# git branch
+  master
+  test1
+  testbranch2
+  testbranch3
+* testbranch4
+
+To delete a specific branch
+[root@localhost gitlab]# git branch -D testbranch2
+Deleted branch testbranch2 (was e497d3c).
+[root@localhost gitlab]# git branch
+  master
+  test1
+  testbranch3
+* testbranch4
+
+
+------
+Github
+------
+
+Create your account over github
+
+To set your git commit username and email address on your linux machine:
+
+#git config --global user.name "potato-cmd"
+#git config --global user.email "potatoarmed@gmail.com"
+
+git remote add origin https://github.com/potato-cmd/edacseptdevops.git
+git branch -M main
+git push -u origin main  //This command wil ask for username and password. Password will your token 
+
+mynewtoken -->> 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 is used as a password
+How to create a token - https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
+
+To verify versioning 
+--------------------
+We modified the script and added/committed and pushed it again over git repo
+[root@localhost gitlab]# git add .
+[root@localhost gitlab]# git commit -m "added new line"
+[main af9cdaa] added new line
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+[root@localhost gitlab]# git push -u origin main
+Username for 'https://github.com': potato-cmd
+Password for 'https://potato-cmd@github.com': 
+Counting objects: 5, done.
+Writing objects: 100% (3/3), 297 bytes | 0 bytes/s, done.
+Total 3 (delta 0), reused 0 (delta 0)
+To https://github.com/potato-cmd/edacseptdevops.git
+   e497d3c..af9cdaa  main -> main
+Branch main set up to track remote branch main from origin.
+
+Then we used 'git log' -- this is used to see commits by users/dev
+
+[root@localhost gitlab]# git log
+commit af9cdaa339a4dea8ebf493e1c36684826f4f6499
+Author: potato-cmd <potatoarmed@gmail.com>
+Date:   Fri Jan 7 21:18:57 2022 +0530
+
+    added new line
+
+commit e497d3c7c049a1b32495a645d281427bbde6f2d7
+Author: root <root@localhost.localdomain>
+Date:   Fri Jan 7 18:58:57 2022 +0530
+
+    Committing script named listallfilesinroot.sh
+
+##To see what has been modified
+
+git diff <commit id before modification> <commit id after modification>
+
+[root@localhost gitlab]# git diff e497d3c7c049a1b32495a645d281427bbde6f2d7 af9cdaa339a4dea8ebf493e1c36684826f4f6499
+diff --git a/listallfilesinroot.sh b/listallfilesinroot.sh
+index bf18965..4ae9ed4 100755
+--- a/listallfilesinroot.sh
++++ b/listallfilesinroot.sh
+@@ -1,4 +1,4 @@
+ #!/bin/bash
+-
++#new line added       ---> This gave us the exact content change of the script
+ ls -l /root/
+
+
+
+
+
+
+
+
+
+
+
+
