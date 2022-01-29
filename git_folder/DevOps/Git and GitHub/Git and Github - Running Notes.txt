@@ -1,0 +1,131 @@
+
+Topics covered 
+1. Local repository 
+2. Working area,  staged area, local repository  area
+3. What is git add,  git rm git restore,  git commit
+4. Git revert to earlier commit  							
+5. Github repositories 
+6. Cloning remote repository 
+7. Git clone vs git pull      								
+8. Link remote repository with git remote add 
+9. Git push to remote repository 
+10. Concepts of branches -creating branches,  going to other branches,  push branch to github,  merge branch - 
+
+
+Configure git user details
+==========================
+git config --global user.name "<github username>"
+git config --global user.email "<github email>"
+
+
+Initializing git repo
+=====================
+
+1. initialing loca repo, connecting it to remote repo, and pulling the remote repo
+
+git init
+git remote add origin https://github.com/narendra-cs/CDACProject.git
+git pull origin main
+
+
+2.  cloning the repo
+
+git clone https://github.com/narendra-cs/CDACProject.git
+
+git init CDACProject
+
+# create files README.md and .gitignore
+
+# github will this into staging area and commit these files
+
+there are two way
+
+1. 
+	# create empty local repo with git init -- Done git init .
+	# connect with remote repo                 -- Done
+	# copy ( pull) the content of remote repo
+	
+2. # Clone the repo
+
+	git clone https://github.com/narendra-cs/CDACProject.git
+
+
+
+# undoing the changes
+
+1. undoing uncommited changes
+	a. undoing changes from working directory of tracked files
+	
+		git checkout -- <filename>				# for single file
+		git checkout -- . 						# for all files
+		
+		git restore <filename>
+		git restore .
+		
+	b. undoing changes from staging area
+		git restore --staged <filename>			# for single file
+		git restore --staged .					# for all files	
+		
+2. undoing commited changes
+
+	# Resetting changes with git reset
+	git reset <commit id>		
+	or
+	git reset HEAD~1
+	
+	
+	# Revert commited changes with git revert
+	git revert <commit id>
+	git revert -n < commit id >				# No auto new commmit
+	
+	
+# Cleaning Working Area
+
+	git clean -f -d 
+	
+	
+	
+# Working with branches
+
+1. creating a branch
+
+	git branch <branch_name>
+	
+2. switching to another branch
+
+	git checkout <branch_name>
+	
+3. merging working branch to main branch
+
+	a. switch to main branch first
+		git checkout main
+	b. merge source branch to main branch
+		git merge <source_branch>
+		
+# Pushing local repo to Github
+	
+	git push origin <branch_name>
+	
+	e.g. git push origin main
+		git push origin dev
+
+
+
+
+
+
+# Reference Docs:
+
+https://about.gitlab.com/images/press/git-cheat-sheet.pdf
+https://education.github.com/git-cheat-sheet-education.pdf
+https://www.atlassian.com/git/tutorials/learn-git-with-bitbucket-cloud
+
+
+
+
+
+
+
+
+
+

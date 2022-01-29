@@ -1,0 +1,52 @@
+
+    Install Jenkins
+=======================
+
+# Switch to root 
+sudo su -
+
+# update packages
+yum update -y
+yum install wget java-11-openjdk-devel java-11-openjdk git epel-release -y 
+
+# Set SELinux in permissive mode (effectively disabling it)
+setenforce 0
+sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+
+# stop and disable firewall
+systemctl stop firewalld
+systemctl disable firewalld
+
+
+# setup yum repo of jenkins
+sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+
+# install jenkins package 
+yum install -y jenkins
+  
+# Enable and start jenkins service
+we can edit config at file /etc/sysconfig/jenkins
+
+systemctl enable jenkins
+systemctl start jenkins
+systemctl status jenkins
+
+# configure jenkins from web brwoser
+
+http://<public ip of you ec2 instance>:8080
+
+# get password from /var/lib/jenkins/secrets/initialAdminPassword file
+
+cat /var/lib/jenkins/secrets/initialAdminPassword
+
+# Enter password and continue
+
+# select suggested plugins and click on it
+
+Congrats your jenkins installed and configured successfully
+
+Hurry!
+
+
+

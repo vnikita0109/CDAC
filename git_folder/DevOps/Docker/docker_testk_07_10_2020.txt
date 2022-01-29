@@ -1,0 +1,30 @@
+
+
+Task 1
+========
+Create a nginx container
+map nginx port with 8090 on local system
+give a name to your container
+map a volume with index.html
+check for content on browser
+update the index.html locally and check for content again on browser
+cp a new.html file into /usr/share/nginx/html
+check for new.html content on browser
+
+Task 2
+=======
+create mysql container
+give it a good name
+set root password also create a user with password
+check details of mysql container
+try to connect with mysql server to perform sql queries
+create student table there
+enter some rows into student table
+
+Task 3
+======
+after completing task 1 and task 2 simulate container life cycle
+
+
+
+

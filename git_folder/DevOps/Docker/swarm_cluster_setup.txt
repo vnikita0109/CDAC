@@ -1,0 +1,77 @@
+
+		docker swarm Cluster Deployment
+===============================================
+
+# Switch to root 
+sudo su -
+
+# update packages
+yum update -y
+
+# switch off swap memory
+swapoff -a
+vi /etc/fstab # comment line of swap
+
+# Change hostname so all fo your node is having name as per their role in k8s cluster
+vi /etc/hostname
+or 
+hostnamectl set-hostname NEW_HOSTNAME
+
+# Set static ip to interface  by editting interface file
+vi /etc/sysconfig/network-scripts/ifcfg-enp0s3
+
+Now add or change value for below fields. Change ip so each node will have separate ip
+
+
+BOOTPROTO=none
+IPADDR=192.168.43.21
+PREFIX=24
+GATEWAY=192.168.43.1
+DNS1=8.8.8.8
+DNS2=8.8.4.4
+DEFROUTE=yes
+IPV4_FAILURE_FATAL=no
+IPV6INIT=yes
+
+# Restart network service to take effect of our changes in interface file 
+systemctl restart network
+
+# Map IPs with machine hosts so we will use hostnames to connect with other machine
+vi /etc/hosts
+
+add below lines at end in /etc/hosts
+
+192.168.43.21 master01
+192.168.43.22 node01
+192.168.43.23 node02
+192.168.43.24 node03
+
+# Set SELinux in permissive mode (effectively disabling it)
+setenforce 0
+sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+
+# stop and disable firewall
+systemctl stop firewalld
+systemctl disable firewalld
+
+# Install docker (skip if docker is already installed)
+yum install docker
+
+# Run docker service (docker service must be running)
+systemctl start docker
+
+
+# initialize the docker swarm on master node (copy the last commands or join token)
+docker swarm init  --advertise-addr=<ip of master node>
+
+
+# use join token and command to join swarm manager to form cluster
+
+docker swarm join --token SWMTKN-1-3pu6hszjas19xyp7ghgosyx9k8atbfcr8p2is99znpy26u2lkl-7p73s1dx5in4tatdymyhg9hu2 192.168.99.121:2377
+
+# Check nodes
+
+docker node ls
+
+
+congratulation you swarm cluster is ready!

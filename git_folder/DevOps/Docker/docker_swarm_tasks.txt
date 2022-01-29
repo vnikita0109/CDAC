@@ -1,0 +1,39 @@
+
+Docker Swarm Task 1
+===================
+1. Create a docker swarm cluster of 2-3 node
+2. Join other nodes as worker as well as manager
+3. Leave one worker from swarm
+4. Remove the worker from which you leave from swarm
+5. Join node as worker again
+6. Check available node
+7. Promote one worker to manager
+8. Demote previous manager
+9. Leave swarm from previous manager
+10. remove node from swarm
+11. Join back as manager
+12. Inspect nodes information`
+
+Docker swarm Task 2
+===================
+1. Create nginx service with name My_Webserver with one replica
+2. Check all running services
+3. Check for running container of My_Webserver service
+4. Update/Scale replicas to 3
+5. Stop one container of My_Webserver service on any one node
+6. Check if service starting it's container to match replica count
+7. Check for all running containers on a node
+
+Docker Swarm Task 3
+===================
+1. Create a new nginx image with your own index.html
+2. Run a service with 3 replicas on docker swarm
+3. Give service name as nginx_webserver
+3. Expose port 8090 
+4. Run curl localhost:8090
+5. Check response from container
+6. Stop one container on any node
+7. Use curl localhost:8090 on same node where you stoped container
+8. See the behaviour 
+9. Scale your service to 5 replicas
+

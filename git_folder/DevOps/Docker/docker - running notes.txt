@@ -1,0 +1,158 @@
+
+Docker Running Notes
+--------------------
+
+# Topic Covered
+Docker basics covered					 -- Done
+creating container using image			 -- Done
+saving container as image				 -- Done
+mapping external directory to containers -- Done
+using Dockerfile to create image         -- Done
+using nginx container to create website  -- Done
+Pushing custom image to dockerhub        -- Done
+Networking in docker by connecting two contaier -- Done
+Docker SWARM 							 -- 
+
+# Installation of docker engined
+
+Ubuntu: https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04
+CentOs: https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-centos-7
+
+
+# Basic command of docker
+
+docker --version
+docker image ls/pull
+
+docker container run/ls
+
+docker container run -p 80:80 -d --name <container_name> nginx:latest
+
+create -> start
+---------------
+docker container create -p 8080:80 --name <container_name> nginx:latest
+docker container start <container_name> 
+
+container lifecycle commands
+----------------------------
+create
+start
+stop
+restart
+pause
+unpause
+kill
+
+
+# docker commit
+docker container commit webserver3 narendra3425/webserver
+
+# push image to dockerhub
+
+docker login
+docker image  push narendra3425/webserver 
+
+# Bind mount
+
+docker container run -p 8080:80 -d --name webserver -v /home/nasingh/mywebsite:/usr/share/nginx/html:ro nginx:latest
+
+
+# dockerfile
+
+docker image build -t  <Repo>:<tag> .
+docker image build -t narendra3425/nodeapp -f <full_path_to_dockerfile>  <path_to_docker_file>
+
+docker image tag <image_id> <Repo>:<tag>
+
+# Nginx website
+
+docker container run -p 8080:80 -d --name <container_name> nginx:latest
+
+# Copy content between local Filesystem and Docker
+
+1. from docker to local
+docker container cp webserver3:/usr/share/nginx/html/index.html .
+
+
+2. local to docker
+
+docker container cp index.html webserver3:/usr/share/nginx/html/index.html
+
+
+## Running mysql container
+
+docker container run --name mysqldb2 -e MYSQL_ROOT_PASSWORD=my-secret-pw -v /home/nasingh/mydb:/var/lib/mysql -d -p 3306:3306 mysql
+
+
+## Docker networking
+docker network create -d bridge --gateway 172.20.0.1 --subnet 172.20.0.1/24 --attachable my_private_network
+
+docker network create -d bridge --gateway 172.16.0.1 --subnet 172.16.0.1/24 --attachable my_public_network
+
+docker container run --name mysqldb2 -e MYSQL_ROOT_PASSWORD=my-secret-pw -v /home/nasingh/mydb:/var/lib/mysql -d -p 3306:3306 --network my_private_network mysql
+
+docker container run -p 8080:80 -d --name webserver --network my_public_network nginx
+
+docker network connect my_private_network webserver
+
+docker container run -it --network my_public_network  centos bash
+
+
+
+## Docker SWARM
+================
+
+## Creating docker swarm cluster 
+
+	# Initialiting swarm cluster
+	docker swarm init --advertise-addr 192.168.0.13
+
+	# joining as worker 
+
+	docker swarm join --token SWMTKN-1-299sdi0zmeea0u6yjr2txa5xolcg2sbvga1n0jcl9iav7603zu-e1rnspujvgfqcj9krt66et3bq 192.168.0.13:2377
+
+## join swarm cluster as manager ( node should not be part of cluster)
+	# get join token for manager
+		docker swarm join-token manager
+		
+		docker swarm join --token SWMTKN-1-18h21244q3awqhpdt5i784xndd31pey6egi51uwfsppk410xit-a95f0sps9h37kxb6iw2kvznoi 192.168.0.18:2377
+		
+## Working with nodes of swarm cluster
+
+	# list nodes
+		docker node ls
+	# promote a worker to become a manager
+		docker node promote <node_name>
+		
+	# demote a manager to worker
+		docker node demote <node_name>
+	# remove a node from sawrm ( state of node should down)
+		docker node rm <node_name>
+
+## working with service on docker swarm cluster
+
+	# creating service of Nginx webserver
+
+	docker service create -p 80:80 --name webserver nginx
+
+	# checking running service
+	docker service ls
+
+	# checking nodes for specific service
+	docker service ps webserver
+
+	# scaling service
+	docker service scale webserver=5
+
+
+## Reference Docs:
+https://www.docker.com/sites/default/files/d8/2019-09/docker-cheat-sheet.pdf
+https://dockerlabs.collabnix.com/docker/cheatsheet/
+https://docs.docker.com/get-started/
+
+
+
+
+
+
+

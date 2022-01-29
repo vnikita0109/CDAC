@@ -1,0 +1,7 @@
+
+# K8s Cheat sheet
+https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+
+# K8s official document
+https://kubernetes.io/docs/home/
+

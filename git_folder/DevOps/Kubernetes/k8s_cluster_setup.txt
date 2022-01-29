@@ -1,0 +1,249 @@
+
+		Kubernetes Cluster Deployment
+===============================================
+
+# Switch to root 
+sudo su -
+
+# update packages
+yum update -y
+
+# switch off swap memory
+swapoff -a
+vi /etc/fstab # comment line of swap
+
+# Change hostname so all fo your node is having name as per their role in k8s cluster
+vi /etc/hostname
+or 
+hostnamectl set-hostname NEW_HOSTNAME
+
+# Set static ip to interface  by editting interface file
+vi /etc/sysconfig/network-scripts/ifcfg-enp0s8
+
+Now add or change value for below fields. Change ip so each node will have separate ip
+
+
+BOOTPROTO=none
+IPADDR=192.168.56.106
+PREFIX=24
+GATEWAY=192.168.56.1
+DNS1=8.8.8.8
+DNS2=8.8.4.4
+DEFROUTE=yes
+IPV4_FAILURE_FATAL=no
+IPV6INIT=yes
+
+# Restart network service to take effect of our changes in interface file 
+systemctl restart network
+
+# Map IPs with machine hosts so we will use hostnames to connect with other machine
+vi /etc/hosts
+
+add below lines at end in /etc/hosts
+
+192.168.56.106 master01
+192.168.57.107 node01
+192.168.56.108 node02
+192.168.56.109 node03
+
+# Set SELinux in permissive mode (effectively disabling it)
+setenforce 0
+sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+
+# stop and disable firewall
+systemctl stop firewalld
+systemctl disable firewalld
+systemctl status firewalld
+
+# Install docker (skip if docker is already installed)
+yum install docker
+
+# Run docker service (docker service must be running)
+systemctl start docker
+
+# Now we have to install 3 essential packages for setting up Kubernetes environment: kubeadm, kubectl, and kubelet.
+
+# Create yum repo to install k8s packages (copy till EOF and paste on terminal)
+cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+EOF
+
+# Install k8s packages
+yum install kubelet kubeadm kubectl 
+
+# reload k8s daemon and enable k8s service to start at boot time
+systemctl daemon-reload
+systemctl enable kubelet
+
+
+
+# Perform below steps on master01
+
+Step 1:  run below command and copy the last line and save it somewhere. you will need to run it on the worker nodes.
+
+# create kubeadm config file with below content of kubeadm-config.yml
+
+"""
+# content of kubeadm-config.yml
+# kubeadm-config.yaml
+kind: ClusterConfiguration
+apiVersion: kubeadm.k8s.io/v1beta3
+---
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+#cgroupDriver: systemd
+cgroupDriver: cgroupfs
+---
+kind: InitConfiguration
+apiVersion: kubeadm.k8s.io/v1beta3
+localAPIEndpoint:
+  advertiseAddress: 192.168.56.106
+  bindPort: 6443
+nodeRegistration:
+  criSocket: /var/run/dockershim.sock
+  name: master01
+  taints:
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
+"""
+
+
+kubeadm init --config kubeadm-config.yml
+
+if you previously preformed above command remove some files with below commands
+
+swapoff -a    # will turn off the swap 
+systemctl daemon-reload
+systemctl restart kubelet
+iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X  # will reset iptables
+kubeadm reset --v=5
+
+Step 2: As mentioned before, run the commands from the above output as a non-root user
+
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+kubectl get pods -o wide --all-namespaces
+
+
+Step 3: 
+# Now check to see if the kubectl command is activated.
+
+kubectl get nodes
+
+# At this point, you will notice that the status of the master01 is ‘NotReady’. This is because we are yet to deploy the pod network to the cluster.
+
+export kubever=$(kubectl version | base64 | tr -d '\n')
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$kubever"
+
+kubectl get nodes 
+
+# Note: wait till master01 is Ready
+
+Step 4: Deploy kubernetes dashboard
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+
+# check dashboard pods status
+
+ kubectl get pods -o wide --all-namespaces
+
+# if kuebrnetes-dashboard status is running. your dashboard is now ready with it’s pod in the running state.
+
+# Note: wait if your dashboard pods are not running
+
+Step 6: By default dashboard will not be visible on the Master VM. Run the following command in the command line:
+
+ kubectl proxy
+
+
+# To view the dashboard in the browser, navigate to the following address in the browser of your Master VM: 
+
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+
+# NOTE: this will ask for token. wait on that screen we will create token then enter 
+
+Step 7: In this step, we will create the service account for the dashboard and get it’s credentials.
+
+Open new terminal on master01 and run the following commands with non-root user:
+
+1. This command will create a service account for dashboard in the default namespace
+
+kubectl create serviceaccount dashboard -n default
+
+2. This command will add the cluster binding rules to your dashboard account
+
+kubectl create clusterrolebinding dashboard-admin -n default  --clusterrole=cluster-admin --serviceaccount=default:dashboard
+
+3. This command will give you the token required for your dashboard login
+
+kubectl get secret $(kubectl get serviceaccount dashboard -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode
+
+
+4. Copy this token and paste it in Dashboard Login Page, by selecting token option
+
+5. You have successfully logged into your dashboard!
+
+
+Run the join command that you saved, when you ran ‘kubeadm init’ command on the master.
+
+Note: Run this command with “sudo”.
+
+kubeadm join 192.168.43.21:6443 --token 55bbq7.01i45ar45g5ct1on --discovery-token-ca-cert-hash sha256:52702fa7c59dc5771635c8065b4631c5cf1405aef91d48ec1f4a93a5c2a01edd --v=5
+
+# check all nodes
+
+kubectl get nodes
+
+# Kubernetes Cluster is ready 
+ 
+ 
+Error: not able to join master  (error uploading crisocket)
+
+resolution: 
+
+swapoff -a    # will turn off the swap 
+systemctl daemon-reload
+systemctl restart kubelet
+iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X  # will reset iptables
+kubeadm reset --v=5
+
+
+
+
+scaled 
+
+image
+------
+pod
+pod
+pod
+pod
+
+
+
+
+
+
+
+
+deployment
+replica set
+Pod (container)
+
+
+
+service
+
+
+
+
+
